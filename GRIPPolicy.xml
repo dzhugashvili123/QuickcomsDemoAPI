@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<videoinfo>
+    <element videoId="GRIPPolicy" videoPath="GRIPPolicy" videoName="GRIPPolicy"/>
+     <variables>
+    	<variable key="Name">Name</variable>
+		<variable key="PolicyNo">PolicyNo</variable>
+		<variable key="PolicyType">PolicyType</variable>
+		<variable key="PremiumAmount">PremiumAmount</variable>
+		<variable key="PremiumPaymentTerm">PremiumPaymentTerm</variable>
+		<variable key="PaymentFrequency">PaymentFrequency</variable>
+		<variable key="SumAssured">SumAssured</variable>
+		<variable key="MaturityAmount">MaturityAmount</variable>
+		<variable key="PolicyTerm">PolicyTerm</variable>
+		<variable key="NomineeName">NomineeName</variable>
+		<variable key="NomineeRelation">NomineeRelation</variable>
+		<variable key="DocumentURL">DocumentURL</variable>
+    </variables>
+</videoinfo>

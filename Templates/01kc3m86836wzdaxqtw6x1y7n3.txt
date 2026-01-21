@@ -1,0 +1,4 @@
+Dear <Variable1>, Thank you for joining us. Please check our vision here: <Variable2>
+Here is the PDF file: <Variable3>
+Thanks & Regards,
+Tecra System Ltd..

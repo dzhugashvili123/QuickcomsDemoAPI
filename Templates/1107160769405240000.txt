@@ -1,0 +1,1 @@
+Use {{1}} as one time password (OTP) to complete the transaction at Liberty General Insurance GIC. Valid for {{2}} minutes.

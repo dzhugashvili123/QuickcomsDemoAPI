@@ -1,0 +1,142 @@
+{
+	"campaigns": [
+		{
+			"campaignname": "Demo List",
+			"fields": [
+				{
+					"key": "firstName"
+				},
+				{
+					"key": "lastName"
+				},
+				{
+					"key": "city"
+				},
+				{
+					"key": "state"
+				},
+				{
+					"key": "zip"
+				},
+				{
+					"key": "email"
+				},
+				{
+					"key": "ConstituencyName"
+				},
+				{
+					"key": "PartyName"
+				},
+				{
+					"key": "MobileNo"
+				},
+				{
+					"key": "text1link"
+				},
+				{
+					"key": "AtalPensionYojana"
+				},
+				{
+					"key": "APY_Amount"
+				},
+				{
+					"key": "APY_Date"
+				},
+				{
+					"key": "PMKSN"
+				},
+				{
+					"key": "PMKSN_Amount"
+				},
+				{
+					"key": "PMKSN_Date"
+				},
+				{
+					"key": "PMGAY"
+				},
+				{
+					"key": "PMGAY_Amount"
+				},
+				{
+					"key": "PMGAY_Date"
+				},
+				{
+					"key": "ThallikiVandhanam"
+				},
+				{
+					"key": "ThallikiVandhanam_Amount"
+				},
+				{
+					"key": "ThallikiVandhanam_Date"
+				},
+				{
+					"key": "AnnaDhaatha"
+				},
+				{
+					"key": "AnnaDhaatha_Amount"
+				},
+				{
+					"key": "AnnaDhaatha_Date"
+				},
+				{
+					"key": "MahaShakti"
+				},
+				{
+					"key": "MahaShakti_Amount"
+				},
+				{
+					"key": "MahaShakti_Date"
+				},
+				{
+					"key": "selectLanguage"
+				}
+			],
+			"candidateName": "SRI ALLETI MAHESHWAR REDDY",
+			"messageTemplate": "village is supporting BJP.\nWe request you to kindly extend your \nsupport to him and to BJP.",
+			"overlays": [
+				{
+					"type": "text",
+					"value": "Dear {{recipientName}},",
+					"x": 50,
+					"y": 120,
+					"size": 26,
+					"font": "MontserratBold",
+					"color": "#243381"
+				},
+				{
+					"type": "text",
+					"value": "{{candidateName}}",
+					"x": 50,
+					"y": 180,
+					"size": 22,
+					"font": "MontserratBold",
+					"color": "#167E3F"
+				},
+				{
+					"type": "text",
+					"value": "from {{location}} {{messageTemplate}}",
+					"x": 50,
+					"y": 210,
+					"size": 18,
+					"font": "MontserratBold",
+					"color": "#000000"
+				}
+			],
+			"email": {
+				"send": false,
+				"templateId": "",
+				"generateVideo": false
+			},
+			"whatsapp": {
+				"send": true,
+				"templateId": "01kc3m86836wzdaxqtw6x1y7n3",
+				"generateVideo": true
+			},
+			"sms": {
+				"send": false,
+				"templateId": "1007534144524827039",
+				"generateVideo": false
+			}
+		}
+	]
+}

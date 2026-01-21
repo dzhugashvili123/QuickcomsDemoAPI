@@ -1,0 +1,109 @@
+{
+    "campaigns": [
+		{
+            "campaignname": "Demat Statement batch_2023",
+            "email": {
+                "send": "true",
+                "backup": ""
+            },
+            "whatsapp": {
+                "send": "true",
+                "backup": ""
+            },
+            "sms": {
+                "send": "true",
+                "backup": ""
+            }
+        },
+		{
+            "campaignname": "Policy_Schedule_Batch",
+            "email": {
+                "send": "true",
+                "backup": ""
+            },
+            "whatsapp": {
+                "send": "true",
+                "backup": ""
+            },
+            "sms": {
+                "send": "true",
+                "backup": ""
+            }
+        },
+		{
+            "campaignname": "OTP_Batch",
+            "email": {
+                "send": "true",
+                "backup": ""
+            },
+            "whatsapp": {
+                "send": "true",
+                "backup": ""
+            },
+            "sms": {
+                "send": "true",
+                "backup": ""
+            }
+        },
+		{
+            "campaignname": "LGI Batch",
+            "email": {
+                "send": "true",
+                "backup": "sms"
+            },
+            "whatsapp": {
+                "send": "false",
+                "backup": ""
+            },
+            "sms": {
+                "send": "false",
+                "backup": "whatsapp"
+            }
+        },
+		{
+            "campaignname": "Liberty_Batch",
+            "email": {
+                "send": "true",
+                "backup": ""
+            },
+            "whatsapp": {
+                "send": "true",
+                "backup": ""
+            },
+            "sms": {
+                "send": "true",
+                "backup": ""
+            }
+        },        
+		{
+            "campaignname": "Campaign Report",
+            "email": {
+                "send": "true",
+                "backup": ""
+            },
+            "whatsapp": {
+                "send": "true",
+                "backup": ""
+            },
+            "sms": {
+                "send": "true",
+                "backup": ""
+            }
+        },
+		{
+            "campaignname": "ABHI_Demo-Batch",
+            "email": {
+                "send": "true",
+                "backup": ""
+            },
+            "whatsapp": {
+                "send": "true",
+                "backup": ""
+            },
+            "sms": {
+                "send": "true",
+                "backup": ""
+            }
+        }
+    ]
+}

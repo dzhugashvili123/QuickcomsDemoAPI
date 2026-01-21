@@ -1,0 +1,7 @@
+Dear Customer, 
+
+Download your {{1}} with policy no. {{2}}. Send SMS with Policy no. followed by *YES* to receive policy copy or *NO* to opt for paperless policy and support our Go Green initiative to *{{3}}* from your registered mobile no. 
+
+For your personalized video click here: https://assets.tecra.com/5giiGVYts 
+
+Team LGI.

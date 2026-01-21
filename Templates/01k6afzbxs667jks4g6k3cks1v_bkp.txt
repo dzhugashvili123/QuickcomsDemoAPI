@@ -1,0 +1,6 @@
+Dear <Variable1>,
+
+You are cordially invited. Please check our video invitation here: <Variable2>
+Here is the invitation: <Variable3>
+
+Thanks & Regards

@@ -1,0 +1,67 @@
+product - whatsapp
+
+below payload is for normal text message
+
+
+base url - https://channels.equence.in/unifiedservice?
+{
+"userName": "equence_demo_t",
+    "password": "xxxxxxxx",
+    "channelId": "WAP",
+    "whatsAppEntity": {
+        "whatsAppSourceAddress": "918655459323",
+        "whatsAppDestinationAddress": "91xxxxxxxxx",
+        "templateId": "01j066cjb46y16x0z7kj96k5fb",
+        "category": "Marketing"
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------
+
+product - whatsapp
+
+below payload is for whatsapp along with variable registered
+
+
+base url - https://channels.equence.in/unifiedservice?
+{ 
+      "userName": "equence_demo_t", 
+      "password": "xxxxxx", 
+      "channelId": "WAP", 
+      "whatsAppEntity": { 
+           "whatsAppSourceAddress": "918655459323", 
+           "whatsAppDestinationAddress": "91xxxxxxxx", 
+    "templateId": "01hp4g1w2s5qtw68tsntdqmays",
+    "variables":["Test"],
+  
+           "category": "Utility" 
+      }     
+} 
+
+-------------------------------------------------------------------------------------------------------------------------
+
+Product - SMS
+
+base url - https://api.equence.in/pushsms?
+
+{
+    "username": "equence_demo_t",
+    "password": "xxxxxx",
+    "to": "91XXXXXXXXX",
+    "from": "EQUNCE",
+    "tmplId":"XXXXXXXXXXXXXXXXXXXX",
+    "text":"SMS Content here"
+}
+
+
+Service Explicit
+Template 1
+Content : Dear * welcome to EQUENCE. Look forward to have our long term business relationship - EQUENCE
+Template id : 1007534144524827039
+
+Service Implicit
+Template 2
+Content : Hi All,* is declared as a holiday on * for the occasion of *.Thank you!*RegardsEquence Technologies
+Template id : 1007698459625936122
+
+

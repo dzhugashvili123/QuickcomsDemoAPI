@@ -1,0 +1,15 @@
+Dear {{1}},
+
+Greetings from {{2}}! Thank you for registering yourself on Self-Help option available on our website, your username is {{3}}.
+
+We are glad to inform you that you now have access to a host of policy-related services at your fingertips. Some of the important features include:
+
+1.	Download - Policy Copy / Policy Endorsement Copy / Renewal Notice / Health E-Card
+2.	Update your contact details- Mobile no./ Email ID/ Address
+3.	Get real-time claim status
+4.	Make changes in policy – Update Vehicle Number, Update Nominee details, etc.
+
+To know more, click on *Self-Help* (Best compatible with Google Chrome). Should you have any further questions or need assistance, please email us at {{4}} or call us at {{5}} and one of our team members will be happy to help you. If you do not wish to receive these messages on WhatsApp, please reply with “STOP”.
+
+Regards,
+Liberty General Insurance.

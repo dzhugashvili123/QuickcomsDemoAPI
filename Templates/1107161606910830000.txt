@@ -1,0 +1,1 @@
+Dear Customer, {{1}} is your OTP for confirming the proposal. Regards, Team LGI

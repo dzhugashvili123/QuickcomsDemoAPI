@@ -1,0 +1,10 @@
+Dear Customer,
+
+The One Time Password (OTP) to confirm your proposal with {{Company}} is {{1}}.
+
+This OTP is valid for {{2}} minutes or 1 successful attempt, whichever is earlier. Please note that this OTP is valid only for this transaction and cannot be used for any other transaction.
+
+Please do not share this One Time Password with anyone.
+
+Thanks!
+Team {{Company}}

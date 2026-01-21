@@ -1,0 +1,27 @@
+{
+    "documentTypes": [
+        {
+            "documentType":"POLICY_SCHEDULE",
+            "sourceId":"14",
+            "locationId":"9a69d5da-b7a3-41dc-80d2-d44951244ecd",
+            "output":"PolicySchedule_Output/",
+            "campaign":"Liberty POC"
+        },
+        {
+            "documentType":"LGI_CAMPAIGN",
+            "sourceId":"14",
+            "locationId":"58be4e93-753a-4f28-b72f-9c3d6ee8280f",
+            "output":"PrintOutput/",
+            "campaign":"Liberty POC demo"
+        },
+		
+        {
+            "documentType":"BULK_OTP",
+            "sourceId":"14",
+            "locationId":"b93e1751-7264-427f-b05b-52fe84b0cc49",
+            "output":"",
+            "campaign":""
+        }
+    ]
+}
+
