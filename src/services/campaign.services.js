@@ -163,6 +163,12 @@ async function sendwhatsappMessageWithoutAttachment(customer, campaign, generate
 	else if (customer.PartyName.trim().toLowerCase() === 'tdp') {
 		pdffile = con.PDF_TDP || "";
 	}
+	else if (customer.selectLanguage === "E" && customer.PartyName.trim().toLowerCase() === 'adv') {
+		pdffile = con.PDF_ADV_ENGLISH || "";
+	}
+	else if (customer.selectLanguage === "T" && customer.PartyName.trim().toLowerCase() === 'adv') {
+		pdffile = con.PDF_ADV_TELUGU || "";
+	}
 	const finalMessage = template
 		.replace("<Variable1>", customer.firstName)
 		.replace("<Variable2>", videoResUrl)
@@ -256,7 +262,7 @@ async function callVideoGenerationApi(data) {
 		var MahaShakti_Amount = '';
 		var MahaShakti_Date = '';
 	}
-	else if(partyName.trim().toLowerCase() === 'tdp'){
+	else if (partyName.trim().toLowerCase() === 'tdp') {
 		var AtalPensionYojana = '';
 		var APY_Amount = '';
 		var APY_Date = '';
@@ -306,8 +312,9 @@ async function callVideoGenerationApi(data) {
 	try {
 		const bjp_url = con.VIDEO_BJP_URL;
 		const tdp_url = con.VIDEO_TDP_URL;
+		const adv_url = con.VIDEO_ADV_URL;
 
-		const url = partyName.trim().toLowerCase() === 'bjp' ? bjp_url : tdp_url;
+		const url = partyName.trim().toLowerCase() === 'bjp' ? bjp_url : (partyName.trim().toLowerCase() === 'tdp' ? tdp_url : adv_url);
 
 		const response = await axios.post(url, policyRecords, {
 			headers: {
@@ -333,6 +340,7 @@ async function callVideoGenerationApi(data) {
 		return null;
 	}
 }
+
 
 // async function shortenUrl(longUrl) {
 // 	try {

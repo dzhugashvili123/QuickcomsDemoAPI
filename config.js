@@ -17,6 +17,7 @@ exports.GS_SMS_USERID=process.env.GS_SMS_USERID
 exports.GS_SMS_PWD=process.env.GS_SMS_PWD
 exports.VIDEO_BJP_URL=process.env.VIDEO_BJP_URL
 exports.VIDEO_TDP_URL=process.env.VIDEO_TDP_URL
+exports.VIDEO_ADV_URL=process.env.VIDEO_ADV_URL
 
 // Equence SMS Details 
 exports.EQC_USERID=process.env.EQC_USERID
@@ -31,6 +32,8 @@ exports.WATCH_CAMPAIGN_QUEUE_INTERVAL=process.env.WATCH_CAMPAIGN_QUEUE_INTERVAL
 exports.PDF_TDP = process.env.PDF_TDP
 exports.PDF_BJP_HINDI = process.env.PDF_BJP_HINDI
 exports.PDF_BJP_ENGLISH = process.env.PDF_BJP_ENGLISH
+exports.PDF_ADV_ENGLISH = process.env.PDF_ADV_ENGLISH
+exports.PDF_ADV_TELUGU = process.env.PDF_ADV_TELUGU
 exports.PDF_FILENAME = process.env.PDF_FILENAME
 
 

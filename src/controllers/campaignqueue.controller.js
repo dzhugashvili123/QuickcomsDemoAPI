@@ -16,6 +16,7 @@ var readFile = util.promisify(fs.readFile);
 const passwordKey = '123'; // same key used for encrypting passwords
 const pdfUrlMapping = {};
 var schedule = require("../services/pdf.server");
+const XLSX = require('xlsx');
 
 exports.UploadECCampaignData = async (req, res) => {
 	try {
@@ -73,89 +74,161 @@ exports.UploadECCampaignData = async (req, res) => {
 	}
 };
 
+function normalizeKey(key) {
+  return key
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '');
+}
+
 exports.ProcessCampgingCsv = async (req, res) => {
-	try {
-		logger.info(`Class :: ${classname} :: Method :: ProcessCampaigningCsv Begin`);
+  try {
+    logger.info(`Class :: ${classname} :: Method :: ProcessCampaigningFile Begin`);
 
-		const { fileName, campaignName } = req.body;
-		if (!fileName) return res.status(400).json({ error: 'File name is required' });
-		if (!campaignName) return res.status(400).json({ error: 'Campaign name is required' });
+    const { fileName, campaignName } = req.body;
+    if (!fileName) return res.status(400).json({ error: 'File name is required' });
+    if (!campaignName) return res.status(400).json({ error: 'Campaign name is required' });
 
-		const originalFilePath = path.join(con.APP_ROOTDIR, "src/config", fileName);
-		if (!fs.existsSync(originalFilePath)) {
-			return res.status(404).json({ error: 'File not found' });
-		}
+    const originalFilePath = path.join(con.APP_ROOTDIR, 'src/config', fileName);
+    if (!fs.existsSync(originalFilePath)) {
+      return res.status(404).json({ error: 'File not found' });
+    }
 
-		// Load campaign fields configuration
-		const readJson = await readFile(con.APP_ROOTDIR + "src/config/campaignqueue.json", "utf8");
-		const fieldsConfig = JSON.parse(readJson);
-		const campaignConfig = fieldsConfig.campaigns.find(c => c.campaignname === campaignName);
-		const matches = fieldsConfig.campaigns
-			.filter(c => c.campaignname === campaignName);
+    // Load campaign config
+    const configJson = await readFile(
+      path.join(con.APP_ROOTDIR, 'src/config/campaignqueue.json'),
+      'utf8'
+    );
+    const fieldsConfig = JSON.parse(configJson);
+    const campaignConfig = fieldsConfig.campaigns.find(
+      c => c.campaignname === campaignName
+    );
 
-		console.log("MATCH COUNT =", matches.length);
-		console.log(JSON.stringify(matches, null, 2));
-		if (!campaignConfig) {
-			return res.status(400).json({ error: `No configuration found for campaign: ${campaignName}` });
-		}
+    if (!campaignConfig) {
+      return res.status(400).json({ error: `No configuration found for campaign: ${campaignName}` });
+    }
 
-		const rowsToInsert = [];
+    const rowsToInsert = [];
+    const fileExt = path.extname(fileName).toLowerCase();
 
-		fs.createReadStream(originalFilePath)
-			.pipe(fastcsv.parse({ headers: true }))
-			.on('error', error => {
-				logger.error('CSV read error:', error);
-				res.status(500).json({ error: 'Failed to read CSV file' });
-			})
-			.on('data', row => {
-				// Only include fields defined in the JSON configuration
-				const filteredRow = {};
-				campaignConfig.fields.forEach(field => {
-					filteredRow[field.key] = row[field.key] || '';
-				});
+    /* =====================================================
+       CSV → EXISTING BEHAVIOR (UNCHANGED)
+       ===================================================== */
+    if (fileExt === '.csv') {
+      fs.createReadStream(originalFilePath)
+        .pipe(fastcsv.parse({ headers: true }))
+        .on('error', err => {
+          logger.error(err);
+          return res.status(500).json({ error: 'CSV read error' });
+        })
+        .on('data', row => {
+          const filteredRow = {};
 
-				filteredRow.status = messagequeueStatusEnum.received;
-				filteredRow.timestamp = new Date().toISOString();
-				filteredRow.campaignname = campaignName;
+          campaignConfig.fields.forEach(field => {
+            filteredRow[field.key] = row[field.key] || '';
+          });
 
-				rowsToInsert.push(filteredRow);
-			})
-			.on('end', async rowCount => {
-				logger.info(`CSV file read successfully. ${rowCount} rows`);
+          filteredRow.status = messagequeueStatusEnum.received;
+          filteredRow.timestamp = new Date().toISOString();
+          filteredRow.campaignname = campaignName;
 
-				try {
-					const insertedRows = await db.campaignqueue.bulkCreate(rowsToInsert);
-					await db.uploadedfiledata.create({
-						filename: fileName,
-						campaignname: campaignName,
-						rowData: rowsToInsert, // save all CSV rows as JSON
-						rowCount: insertedRows.length,
-					});
+          rowsToInsert.push(filteredRow);
+        })
+        .on('end', async () => {
+          await insertAndMove(rowsToInsert);
+          return res.json({
+            message: 'CSV processed successfully',
+            count: rowsToInsert.length
+          });
+        });
 
-					// Move the processed CSV to "processed" folder
-					const processedDir = path.join(con.APP_ROOTDIR, "src/config/processed");
-					if (!fs.existsSync(processedDir)) fs.mkdirSync(processedDir, { recursive: true });
+      return;
+    }
 
-					const processedFilePath = path.join(processedDir, fileName);
-					fs.renameSync(originalFilePath, processedFilePath);
+    /* =====================================================
+       XLSX → NORMALIZED HEADER + PAD NULLS
+       ===================================================== */
+    if (fileExt === '.xlsx') {
+      const workbook = XLSX.readFile(originalFilePath);
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: null });
 
-					res.json({
-						message: 'Data inserted into campaignqueue successfully',
-						insertedCount: insertedRows.length,
-						filePath: processedFilePath
-					});
-				} catch (insertError) {
-					logger.error('Database insert error:', insertError);
-					res.status(500).json({ error: 'Failed to insert data into campaignqueue' });
-				}
-			});
+      rawRows.forEach(rawRow => {
+        const normalizedRow = {};
 
-		logger.info(`Class :: ${classname} :: Method :: ProcessCampaigningCsv End`);
-	} catch (ex) {
-		logger.error("Exception ERROR :: " + ex);
-		return res.status(500).json({ error: "Internal server error" });
-	}
-};
+        // Normalize headers
+        Object.keys(rawRow).forEach(key => {
+          normalizedRow[normalizeKey(key)] = rawRow[key];
+        });
+
+        const record = {};
+
+        // Pad ALL fields to null
+        campaignConfig.fields.forEach(field => {
+          record[field.key] = null;
+        });
+
+        // Bind allowed XLSX fields
+        record.firstName = normalizedRow.firstname || null;
+        record.lastName = normalizedRow.lastname || null;
+        record.MobileNo =
+          normalizedRow.mobileno ||
+          normalizedRow.phone ||
+          null;
+
+        record.selectLanguage =
+          normalizedRow.selectlanguage ||
+          normalizedRow.language ||
+          null;
+
+        // Force ADV
+        record.PartyName = 'ADV';
+
+        // System fields
+        record.status = messagequeueStatusEnum.received;
+        record.timestamp = new Date().toISOString();
+        record.campaignname = campaignName;
+
+        rowsToInsert.push(record);
+      });
+
+      await insertAndMove(rowsToInsert);
+
+      return res.json({
+        message: 'XLSX processed successfully',
+        count: rowsToInsert.length
+      });
+    }
+
+    return res.status(400).json({ error: 'Unsupported file type' });
+
+    /* =====================================================
+       COMMON INSERT + MOVE
+       ===================================================== */
+    async function insertAndMove(rows) {
+      const inserted = await db.campaignqueue.bulkCreate(rows);
+
+      await db.uploadedfiledata.create({
+        filename: fileName,
+        campaignname: campaignName,
+        rowData: rows,
+        rowCount: inserted.length
+      });
+
+      const processedDir = path.join(con.APP_ROOTDIR, 'src/config/processed');
+      if (!fs.existsSync(processedDir)) {
+        fs.mkdirSync(processedDir, { recursive: true });
+      }
+
+      fs.renameSync(originalFilePath, path.join(processedDir, fileName));
+    }
+
+  } catch (ex) {
+    logger.error('Exception ERROR :: ', ex);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 // exports.ProcessCampgingCsv = async (req, res) => {
 // 	try {

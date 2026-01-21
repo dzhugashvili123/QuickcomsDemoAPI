@@ -317,7 +317,7 @@ async function main() {
 
 // //Test
 // (async () => {
-//   const testUrl = "https://my-app-public-files-123.s3.ap-south-2.amazonaws.com/TDP.pdf";
+//   const testUrl = "https://my-app-public-files-123.s3.ap-south-2.amazonaws.com/Image.pdf";
 //   const shortUrl = await shortenUrl(testUrl);
 //   console.log("Returned Short URL:", shortUrl);
 // })();

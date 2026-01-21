@@ -13,7 +13,7 @@ const { generateQuickcomsToken, generateQuickcomsTokenByGroup } = require("../co
 const { generateIdomoVideo, generateIdomoToken } = require("../controllers/idomo.video.controller");
 const { generatepsVideo, getvideourl } = require("../controllers/ps.video.controller");
 const { UploadECCampaignData, ProcessCampgingCsv, GetCampaignsCampaignQueue, loginUser, handleSubmitSelectedRows,GetSelectCampaigns,generatePefOverview} = require("../controllers/campaignqueue.controller");
-const { updateCampaignUser, getBjpCampaignUsers, getTdpCampaignUsers, updateBjpCampaignUser, updateTdpCampaignUser } = require("../controllers/campaignusers.controller");
+const { updateCampaignUser, getBjpCampaignUsers, getTdpCampaignUsers, getAdvCampaignUsers, updateBjpCampaignUser, updateTdpCampaignUser, updateAdvCampaignUser } = require("../controllers/campaignusers.controller");
 
 router.get("/run/messagequeue", processMessageQueue);
 router.get("/run/sms", scheduleSMS);
@@ -74,8 +74,10 @@ router.get("/ps/getvideourl", getvideourl);
 
 router.get("/get-select-campaign-users-bjp", getBjpCampaignUsers);
 router.get("/get-select-campaign-users-tdp", getTdpCampaignUsers);
+router.get("/get-select-campaign-users-adv", getAdvCampaignUsers);
 router.post('/update-campaign-user', updateCampaignUser);
 router.post('/update-bjp-user', updateBjpCampaignUser);
 router.post('/update-tdp-user', updateTdpCampaignUser);
+router.post('/update-adv-user', updateAdvCampaignUser);
 
 module.exports = router;
