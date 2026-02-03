@@ -18,11 +18,16 @@ exports.GS_SMS_PWD=process.env.GS_SMS_PWD
 exports.VIDEO_BJP_URL=process.env.VIDEO_BJP_URL
 exports.VIDEO_TDP_URL=process.env.VIDEO_TDP_URL
 
-// Equence SMS Details 
-exports.EQC_USERID=process.env.EQC_USERID
-exports.EQC_PWD=process.env.EQC_PWD
+// Equence SMS and whatsapp Details
 exports.EQC_SMS_TEMPLATE_ID = process.env.EQC_SMS_TEMPLATE_ID
 exports.VIDEO_TEMPLATE_ID = process.env.VIDEO_TEMPLATE_ID
+exports.EQC_WHATSAPP_USERID=process.env.EQC_WHATSAPP_USERID
+exports.EQC_WHATSAPP_PWD=process.env.EQC_WHATSAPP_PWD
+exports.EQC_SMS_USERID=process.env.EQC_SMS_USERID
+exports.EQC_SMS_PWD=process.env.EQC_SMS_PWD
+exports.PDF_ADV_ENGLISH=process.env.PDF_ADV_ENGLISH
+exports.PDF_ADV_TELUGU = process.env.PDF_ADV_TELUGU
+exports.VIDEO_ADV_URL=process.env.VIDEO_ADV_URL
 
 // Equence Whatsapp Details
 exports.EQC_WHATSAPP_SOURCE_ADDRESS = process.env.EQC_WHATSAPP_SOURCE_ADDRESS

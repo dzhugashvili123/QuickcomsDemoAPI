@@ -12,8 +12,8 @@ const { UploadCampaignData, GetCampaigns, GetCampaignReportByTrackingId } = requ
 const { generateQuickcomsToken, generateQuickcomsTokenByGroup } = require("../controllers/token.controller");
 const { generateIdomoVideo, generateIdomoToken } = require("../controllers/idomo.video.controller");
 const { generatepsVideo, getvideourl } = require("../controllers/ps.video.controller");
-const { UploadECCampaignData, ProcessCampgingCsv, GetCampaignsCampaignQueue, loginUser, handleSubmitSelectedRows,GetSelectCampaigns,generatePefOverview} = require("../controllers/campaignqueue.controller");
-const { updateCampaignUser, getBjpCampaignUsers, getTdpCampaignUsers, updateBjpCampaignUser, updateTdpCampaignUser } = require("../controllers/campaignusers.controller");
+const { UploadECCampaignData, ProcessCampgingCsv, GetCampaignsCampaignQueue, loginUser, handleSubmitSelectedRows, GetSelectCampaigns, generatePefOverview } = require("../controllers/campaignqueue.controller");
+const { updateCampaignUser, getBjpCampaignUsers, getTdpCampaignUsers, updateBjpCampaignUser, updateTdpCampaignUser, getAdvCampaignUsers } = require("../controllers/campaignusers.controller");
 
 router.get("/run/messagequeue", processMessageQueue);
 router.get("/run/sms", scheduleSMS);
@@ -29,7 +29,7 @@ router.post("/file-upload", UploadECCampaignData);
 router.post("/process-campaign", ProcessCampgingCsv);
 router.get("/get-campaigns", GetCampaignsCampaignQueue);
 router.post("/login", loginUser);
-router.post("/submit-selected-rows",handleSubmitSelectedRows);
+router.post("/submit-selected-rows", handleSubmitSelectedRows);
 router.get("/get-select-campaigns", GetSelectCampaigns);
 router.get("/pdf/:shortId", generatePefOverview);
 
@@ -74,6 +74,7 @@ router.get("/ps/getvideourl", getvideourl);
 
 router.get("/get-select-campaign-users-bjp", getBjpCampaignUsers);
 router.get("/get-select-campaign-users-tdp", getTdpCampaignUsers);
+router.get("/get-select-campaign-users-adv", getAdvCampaignUsers);
 router.post('/update-campaign-user', updateCampaignUser);
 router.post('/update-bjp-user', updateBjpCampaignUser);
 router.post('/update-tdp-user', updateTdpCampaignUser);

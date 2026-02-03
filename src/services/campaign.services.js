@@ -73,18 +73,22 @@ async function sendSMS(Id, phone, msgContent, customer, templateId, generateVide
 			logger.error(`Video generation failed: ${err}`);
 		}
 	}
+	const pdfUrl = con.PDF_ADV_ENGLISH || "";
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} videoResUrl:: ${videoResUrl}`);
 
-	const finalMessage = template.replace("<Variable1>", msgContent);
+	const finalMessage = template.replace("<Variable1>", msgContent)
+		.replace("<Variable2>", videoResUrl)
+		.replace("<Variable3>", pdfUrl);
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} finalMessage:: ${finalMessage}`);
 
 	const payload = {
-		username: con.EQC_USERID,
-		password: con.EQC_PWD,
+		username: con.EQC_SMS_USERID,
+		password: con.EQC_SMS_PWD,
 		to: phone,
-		from: "EQUNCE",
+		from: "TECRAS",
 		tmplId: templateId,
-		text: finalMessage
+		text: finalMessage,
+		makeShort: "1",
 	};
 
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} Request Body = ${JSON.stringify(payload)}`);
@@ -120,6 +124,7 @@ async function sendSMS(Id, phone, msgContent, customer, templateId, generateVide
 }
 
 async function sendwhatsappMessageWithoutAttachment(customer, campaign, generateVideo) {
+	logger.info('sendwhatsappMessageWithoutAttachment=============== ');
 	const methodname = "sendwhatsappMessageWithoutAttachment";
 	const templateId = campaign.whatsapp.templateId;
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin`);
@@ -163,6 +168,12 @@ async function sendwhatsappMessageWithoutAttachment(customer, campaign, generate
 	else if (customer.PartyName.trim().toLowerCase() === 'tdp') {
 		pdffile = con.PDF_TDP || "";
 	}
+	else if (customer.selectLanguage === "E" && customer.PartyName.trim().toLowerCase() === 'adv') {
+		pdffile = con.PDF_ADV_ENGLISH || "";
+	}
+	else if (customer.selectLanguage === "T" && customer.PartyName.trim().toLowerCase() === 'adv') {
+		pdffile = con.PDF_ADV_TELUGU || "";
+	}
 	const finalMessage = template
 		.replace("<Variable1>", customer.firstName)
 		.replace("<Variable2>", videoResUrl)
@@ -170,8 +181,8 @@ async function sendwhatsappMessageWithoutAttachment(customer, campaign, generate
 
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} finalMessage:: ${finalMessage}`);
 
-	const userid = con.EQC_USERID;
-	const password = con.EQC_PWD;
+	const userid = con.EQC_WHATSAPP_USERID;
+	const password = con.EQC_WHATSAPP_PWD;
 	const url = "https://channels.equence.in/unifiedservice?";
 
 	const payload = {
@@ -183,11 +194,14 @@ async function sendwhatsappMessageWithoutAttachment(customer, campaign, generate
 			whatsAppDestinationAddress: customer.MobileNo,
 			templateId: templateId,
 			variables: [
-				customer.firstName,
-				videoResUrl,
-				pdffile
+				customer.firstName
 			],
-			category: "Marketing"
+			category: "Marketing",
+			dynamicUrl: videoResUrl,
+			mediaAttachment: {
+				type: "IMAGE",
+				url: "https://videos.laadshyd.com/vf/static/sumanth/nvsumanth.jpeg"
+			},
 		}
 	};
 
@@ -226,88 +240,90 @@ async function sendwhatsappMessageWithoutAttachment(customer, campaign, generate
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} End`);
 }
 
-
 async function callVideoGenerationApi(data) {
 	let methodname = 'callVideoGenerationApi';
 	logger.info("Class :: " + classname + " :: Method :: " + methodname + " Begin");
-	var text1link = data.text1link;
-	var PartyName = data.PartyName || 'BJP';
+	//var text1link = data.text1link;
+	//var PartyName = data.PartyName || 'BJP';
 	var fullName = data.firstName; //+ " " + data.lastName;
 	var selectLanguage = data.selectLanguage;
 
 	const partyName = data.PartyName;
-	if (partyName.trim().toLowerCase() === 'bjp') {
-		var AtalPensionYojana = data.AtalPensionYojana; // y/n
-		var APY_Amount = data.APY_Amount;
-		var APY_Date = data.APY_Date.replace(/-/g, '/');
-		var PMKSN = data.PMKSN;
-		var PMKSN_Amount = data.PMKSN_Amount;
-		var PMKSN_Date = data.PMKSN_Date.replace(/-/g, '/');
-		var PMGAY = data.PMGAY;
-		var PMGAY_Amount = data.PMGAY_Amount;
-		var PMGAY_Date = data.PMGAY_Date.replace(/-/g, '/');
-		var ThallikiVandhanam = '';
-		var ThallikiVandhanam_Amount = '';
-		var ThallikiVandhanam_Date = '';
-		var AnnaDhaatha = '';
-		var AnnaDhaatha_Amount = '';
-		var AnnaDhaatha_Date = '';
-		var MahaShakti = '';
-		var MahaShakti_Amount = '';
-		var MahaShakti_Date = '';
-	}
-	else if(partyName.trim().toLowerCase() === 'tdp'){
-		var AtalPensionYojana = '';
-		var APY_Amount = '';
-		var APY_Date = '';
-		var PMKSN = '';
-		var PMKSN_Amount = '';
-		var PMKSN_Date = '';
-		var PMGAY = '';
-		var PMGAY_Amount = '';
-		var PMGAY_Date = '';
-		var ThallikiVandhanam = data.ThallikiVandhanam; // y/n
-		var ThallikiVandhanam_Amount = data.ThallikiVandhanam_Amount;
-		var ThallikiVandhanam_Date = data.ThallikiVandhanam_Date.replace(/-/g, '/');
-		var AnnaDhaatha = data.AnnaDhaatha;
-		var AnnaDhaatha_Amount = data.AnnaDhaatha_Amount;
-		var AnnaDhaatha_Date = data.AnnaDhaatha_Date.replace(/-/g, '/');
-		var MahaShakti = data.MahaShakti;
-		var MahaShakti_Amount = data.MahaShakti_Amount;
-		var MahaShakti_Date = data.MahaShakti_Date.replace(/-/g, '/');
-	}
+	// if (partyName.trim().toLowerCase() === 'bjp') {
+	// 	var AtalPensionYojana = data.AtalPensionYojana; // y/n
+	// 	var APY_Amount = data.APY_Amount;
+	// 	var APY_Date = data.APY_Date.replace(/-/g, '/');
+	// 	var PMKSN = data.PMKSN;
+	// 	var PMKSN_Amount = data.PMKSN_Amount;
+	// 	var PMKSN_Date = data.PMKSN_Date.replace(/-/g, '/');
+	// 	var PMGAY = data.PMGAY;
+	// 	var PMGAY_Amount = data.PMGAY_Amount;
+	// 	var PMGAY_Date = data.PMGAY_Date.replace(/-/g, '/');
+	// 	var ThallikiVandhanam = '';
+	// 	var ThallikiVandhanam_Amount = '';
+	// 	var ThallikiVandhanam_Date = '';
+	// 	var AnnaDhaatha = '';
+	// 	var AnnaDhaatha_Amount = '';
+	// 	var AnnaDhaatha_Date = '';
+	// 	var MahaShakti = '';
+	// 	var MahaShakti_Amount = '';
+	// 	var MahaShakti_Date = '';
+	// }
+	// else if (partyName.trim().toLowerCase() === 'tdp') {
+	// 	var AtalPensionYojana = '';
+	// 	var APY_Amount = '';
+	// 	var APY_Date = '';
+	// 	var PMKSN = '';
+	// 	var PMKSN_Amount = '';
+	// 	var PMKSN_Date = '';
+	// 	var PMGAY = '';
+	// 	var PMGAY_Amount = '';
+	// 	var PMGAY_Date = '';
+	// 	var ThallikiVandhanam = data.ThallikiVandhanam; // y/n
+	// 	var ThallikiVandhanam_Amount = data.ThallikiVandhanam_Amount;
+	// 	var ThallikiVandhanam_Date = data.ThallikiVandhanam_Date.replace(/-/g, '/');
+	// 	var AnnaDhaatha = data.AnnaDhaatha;
+	// 	var AnnaDhaatha_Amount = data.AnnaDhaatha_Amount;
+	// 	var AnnaDhaatha_Date = data.AnnaDhaatha_Date.replace(/-/g, '/');
+	// 	var MahaShakti = data.MahaShakti;
+	// 	var MahaShakti_Amount = data.MahaShakti_Amount;
+	// 	var MahaShakti_Date = data.MahaShakti_Date.replace(/-/g, '/');
+	// }
 
 
 	var policyRecords = [{
 		fullName: fullName,
-		profileLink: text1link,
-		PartyName: PartyName,
-		AtalPensionYojana: AtalPensionYojana,
-		APY_Amount: APY_Amount,
-		APY_Date: APY_Date,
-		PMKSN: PMKSN,
-		PMKSN_Amount: PMKSN_Amount,
-		PMKSN_Date: PMKSN_Date,
-		PMGAY: PMGAY,
-		PMGAY_Amount: PMGAY_Amount,
-		PMGAY_Date: PMGAY_Date,
-		ThallikiVandhanam: ThallikiVandhanam,
-		ThallikiVandhanam_Amount: ThallikiVandhanam_Amount,
-		ThallikiVandhanam_Date: ThallikiVandhanam_Date,
-		AnnaDhaatha: AnnaDhaatha,
-		AnnaDhaatha_Amount: AnnaDhaatha_Amount,
-		AnnaDhaatha_Date: AnnaDhaatha_Date,
-		MahaShakti: MahaShakti,
-		MahaShakti_Amount: MahaShakti_Amount,
-		MahaShakti_Date: MahaShakti_Date,
+		RNPOLNUM: data.MobileNo,
+		PartyName: partyName,
+		//profileLink: text1link,
+		// PartyName: PartyName,
+		// AtalPensionYojana: AtalPensionYojana,
+		// APY_Amount: APY_Amount,
+		// APY_Date: APY_Date,
+		// PMKSN: PMKSN,
+		// PMKSN_Amount: PMKSN_Amount,
+		// PMKSN_Date: PMKSN_Date,
+		// PMGAY: PMGAY,
+		// PMGAY_Amount: PMGAY_Amount,
+		// PMGAY_Date: PMGAY_Date,
+		// ThallikiVandhanam: ThallikiVandhanam,
+		// ThallikiVandhanam_Amount: ThallikiVandhanam_Amount,
+		// ThallikiVandhanam_Date: ThallikiVandhanam_Date,
+		// AnnaDhaatha: AnnaDhaatha,
+		// AnnaDhaatha_Amount: AnnaDhaatha_Amount,
+		// AnnaDhaatha_Date: AnnaDhaatha_Date,
+		// MahaShakti: MahaShakti,
+		// MahaShakti_Amount: MahaShakti_Amount,
+		// MahaShakti_Date: MahaShakti_Date,
 		selectLanguage: selectLanguage
 	}];
 
 	try {
 		const bjp_url = con.VIDEO_BJP_URL;
 		const tdp_url = con.VIDEO_TDP_URL;
+		const adv_url = con.VIDEO_ADV_URL;
 
-		const url = partyName.trim().toLowerCase() === 'bjp' ? bjp_url : tdp_url;
+		const url = partyName.trim().toLowerCase() === 'bjp' ? bjp_url : (partyName.trim().toLowerCase() === 'tdp' ? tdp_url : adv_url);
 
 		const response = await axios.post(url, policyRecords, {
 			headers: {
@@ -317,7 +333,8 @@ async function callVideoGenerationApi(data) {
 		const fullUrl = response.data && response.data[0] && response.data[0].shorturl;
 		logger.info("Class :: " + classname + " :: Method :: " + methodname + " response:: " + JSON.stringify(response.data, null, 2));
 		if (fullUrl) {
-			const shortUrl = await videoshortenUrl(fullUrl);
+			//const shortUrl = await videoshortenUrl(fullUrl);
+			const shortUrl = fullUrl;
 			logger.info("Class :: " + classname + " :: Method :: " + methodname + " fullUrl:: " + fullUrl);
 			logger.info("Class :: " + classname + " :: Method :: " + methodname + " shortUrl:: " + shortUrl);
 			logger.info("Class :: " + classname + " :: Method :: " + methodname + " End");
@@ -333,6 +350,114 @@ async function callVideoGenerationApi(data) {
 		return null;
 	}
 }
+
+
+// async function callVideoGenerationApi(data) {
+// 	let methodname = 'callVideoGenerationApi';
+// 	logger.info("Class :: " + classname + " :: Method :: " + methodname + " Begin");
+// 	var text1link = data.text1link;
+// 	var PartyName = data.PartyName || 'BJP';
+// 	var fullName = data.firstName; //+ " " + data.lastName;
+// 	var selectLanguage = data.selectLanguage;
+
+// 	const partyName = data.PartyName;
+// 	if (partyName.trim().toLowerCase() === 'bjp') {
+// 		var AtalPensionYojana = data.AtalPensionYojana; // y/n
+// 		var APY_Amount = data.APY_Amount;
+// 		var APY_Date = data.APY_Date.replace(/-/g, '/');
+// 		var PMKSN = data.PMKSN;
+// 		var PMKSN_Amount = data.PMKSN_Amount;
+// 		var PMKSN_Date = data.PMKSN_Date.replace(/-/g, '/');
+// 		var PMGAY = data.PMGAY;
+// 		var PMGAY_Amount = data.PMGAY_Amount;
+// 		var PMGAY_Date = data.PMGAY_Date.replace(/-/g, '/');
+// 		var ThallikiVandhanam = '';
+// 		var ThallikiVandhanam_Amount = '';
+// 		var ThallikiVandhanam_Date = '';
+// 		var AnnaDhaatha = '';
+// 		var AnnaDhaatha_Amount = '';
+// 		var AnnaDhaatha_Date = '';
+// 		var MahaShakti = '';
+// 		var MahaShakti_Amount = '';
+// 		var MahaShakti_Date = '';
+// 	}
+// 	else if(partyName.trim().toLowerCase() === 'tdp'){
+// 		var AtalPensionYojana = '';
+// 		var APY_Amount = '';
+// 		var APY_Date = '';
+// 		var PMKSN = '';
+// 		var PMKSN_Amount = '';
+// 		var PMKSN_Date = '';
+// 		var PMGAY = '';
+// 		var PMGAY_Amount = '';
+// 		var PMGAY_Date = '';
+// 		var ThallikiVandhanam = data.ThallikiVandhanam; // y/n
+// 		var ThallikiVandhanam_Amount = data.ThallikiVandhanam_Amount;
+// 		var ThallikiVandhanam_Date = data.ThallikiVandhanam_Date.replace(/-/g, '/');
+// 		var AnnaDhaatha = data.AnnaDhaatha;
+// 		var AnnaDhaatha_Amount = data.AnnaDhaatha_Amount;
+// 		var AnnaDhaatha_Date = data.AnnaDhaatha_Date.replace(/-/g, '/');
+// 		var MahaShakti = data.MahaShakti;
+// 		var MahaShakti_Amount = data.MahaShakti_Amount;
+// 		var MahaShakti_Date = data.MahaShakti_Date.replace(/-/g, '/');
+// 	}
+
+
+// 	var policyRecords = [{
+// 		fullName: fullName,
+// 		profileLink: text1link,
+// 		PartyName: PartyName,
+// 		AtalPensionYojana: AtalPensionYojana,
+// 		APY_Amount: APY_Amount,
+// 		APY_Date: APY_Date,
+// 		PMKSN: PMKSN,
+// 		PMKSN_Amount: PMKSN_Amount,
+// 		PMKSN_Date: PMKSN_Date,
+// 		PMGAY: PMGAY,
+// 		PMGAY_Amount: PMGAY_Amount,
+// 		PMGAY_Date: PMGAY_Date,
+// 		ThallikiVandhanam: ThallikiVandhanam,
+// 		ThallikiVandhanam_Amount: ThallikiVandhanam_Amount,
+// 		ThallikiVandhanam_Date: ThallikiVandhanam_Date,
+// 		AnnaDhaatha: AnnaDhaatha,
+// 		AnnaDhaatha_Amount: AnnaDhaatha_Amount,
+// 		AnnaDhaatha_Date: AnnaDhaatha_Date,
+// 		MahaShakti: MahaShakti,
+// 		MahaShakti_Amount: MahaShakti_Amount,
+// 		MahaShakti_Date: MahaShakti_Date,
+// 		selectLanguage: selectLanguage
+// 	}];
+
+// 	try {
+// 		const bjp_url = con.VIDEO_BJP_URL;
+// 		const tdp_url = con.VIDEO_TDP_URL;
+
+// 		const url = partyName.trim().toLowerCase() === 'bjp' ? bjp_url : tdp_url;
+
+// 		const response = await axios.post(url, policyRecords, {
+// 			headers: {
+// 				"Content-Type": "application/json",
+// 			},
+// 		});
+// 		const fullUrl = response.data && response.data[0] && response.data[0].shorturl;
+// 		logger.info("Class :: " + classname + " :: Method :: " + methodname + " response:: " + JSON.stringify(response.data, null, 2));
+// 		if (fullUrl) {
+// 			const shortUrl = await videoshortenUrl(fullUrl);
+// 			logger.info("Class :: " + classname + " :: Method :: " + methodname + " fullUrl:: " + fullUrl);
+// 			logger.info("Class :: " + classname + " :: Method :: " + methodname + " shortUrl:: " + shortUrl);
+// 			logger.info("Class :: " + classname + " :: Method :: " + methodname + " End");
+// 			return shortUrl;
+// 		} else {
+// 			logger.warn("Class :: " + classname + " :: Method :: " + methodname + " :: Response does not contain a valid URL");
+// 			logger.info("Class :: " + classname + " :: Method :: " + methodname + " End");
+// 			return null;
+// 		}
+// 	} catch (err) {
+// 		logger.error("Class :: " + classname + " :: Method :: " + methodname + " error:: " + err);
+// 		logger.info("Class :: " + classname + " :: Method :: " + methodname + " End");
+// 		return null;
+// 	}
+// }
 
 // async function shortenUrl(longUrl) {
 // 	try {

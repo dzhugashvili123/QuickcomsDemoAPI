@@ -161,6 +161,87 @@ exports.getTdpCampaignUsers = async (req, res) => {
     }
 };
 
+
+exports.getAdvCampaignUsers = async (req, res) => {
+    const methodname = 'getAdvCampaignUsers';
+    console.log("!!!Ballsy!!!");
+    logger.info(`Class :: ${classname} :: Method :: ${methodname} :: Begin`);
+
+    try {
+        const campaignName = req.query.campaignName || 'Demo List';
+
+        logger.info(`Campaign Name = ${campaignName}`);
+
+        const query = `
+            SELECT
+                id,
+                "firstName",
+                "lastName",
+                "MobileNo",
+                email,
+                city,
+                state,
+                zip,
+                "ConstituencyName",
+                "PartyName",
+                text1link,
+                "AtalPensionYojana",
+                "APY_Amount",
+                "APY_Date",
+                "PMKSN",
+                "PMKSN_Amount",
+                "PMKSN_Date",
+                "PMGAY",
+                "PMGAY_Amount",
+                "PMGAY_Date",
+                "ThallikiVandhanam",
+                "ThallikiVandhanam_Amount",
+                "ThallikiVandhanam_Date",
+                "AnnaDhaatha",
+                "AnnaDhaatha_Amount",
+                "AnnaDhaatha_Date",
+                "MahaShakti",
+                "MahaShakti_Amount",
+                "MahaShakti_Date",
+                "selectLanguage"
+            FROM public.campaignqueues
+            WHERE campaignname = :campaignName AND "PartyName" = 'ADV'
+            ORDER BY "createdAt" DESC
+        `;
+
+        const results = await db.sequelize.query(query, {
+            replacements: { campaignName },
+            type: Sequelize.QueryTypes.SELECT
+        });
+
+        logger.info(
+            `Class :: ${classname} :: Method :: ${methodname} :: Records fetched = ${results.length}`
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                rowData: results
+            }
+        });
+
+    } catch (err) {
+        logger.error(
+            `Class :: ${classname} :: Method :: ${methodname} :: ERROR = ${err}`
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch campaign users',
+            error: err.message
+        });
+    } finally {
+        logger.info(`Class :: ${classname} :: Method :: ${methodname} :: End`);
+    }
+};
+
+
+
 exports.updateCampaignUser = async (req, res) => {
     try {
         const data = req.body;

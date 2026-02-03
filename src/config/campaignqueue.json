@@ -129,13 +129,13 @@
 			},
 			"whatsapp": {
 				"send": true,
-				"templateId": "01kc3m86836wzdaxqtw6x1y7n3",
+				"templateId": "2422278754878899",
 				"generateVideo": true
 			},
 			"sms": {
-				"send": false,
-				"templateId": "1007534144524827039",
-				"generateVideo": false
+				"send": true,
+				"templateId": "1707176917226644571",
+				"generateVideo": true
 			}
 		}
 	]

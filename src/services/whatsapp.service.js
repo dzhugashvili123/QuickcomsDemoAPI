@@ -285,8 +285,8 @@ async function sendwhatsappMessageWithoutAttachment(id, phone, content, customer
 
 	logger.info("Class :: " + classname + " :: Method :: " + methodname + " values after replacing videoResUrl:: " + JSON.stringify(values, null, 2));
 
-	const userid = con.EQC_USERID;
-	const password = con.EQC_PWD;
+	const userid = con.EQC_WHATSAPP_USERID;
+	const password = con.EQC_WHATSAPP_PWD;
 	const url = 'https://channels.equence.in/unifiedservice?';
 
 	const payload = {
@@ -297,14 +297,20 @@ async function sendwhatsappMessageWithoutAttachment(id, phone, content, customer
 			whatsAppSourceAddress: con.EQC_WHATSAPP_SOURCE_ADDRESS,
 			whatsAppDestinationAddress: phone,
 			templateId: con.EQC_WHATSAPP_TEMPLATE_ID,
+			templateName: "test_council",
 			variables: [
 				data.fullName,
-				values[1],
-				values[2]
 			],
-			category: "Marketing"
+			category: "Marketing",
+			dynamicUrl: videoResUrl,
+			mediaAttachment: {
+				type: "IMAGE",
+				url: "https://videos.laadshyd.com/vf/static/sumanth/nvsumanth.jpeg"
+			},
 		}
 	};
+
+	console.log(" payload is =========== :: " + JSON.stringify(payload));
 	var options = {
 		method: 'POST',
 		url: url,
@@ -579,7 +585,7 @@ async function callVideoGenerationApi(data) {
 	var PMKSN_Date = data.PMKSN_Date;
 	var PMGAY = data.PMGAY;
 	var PMGAY_Amount = data.PMGAY_Amount;
-	var PMGAY_Date = data.PMGAY_Date;	
+	var PMGAY_Date = data.PMGAY_Date;
 	var selectLanguage = data.selectLanguage;
 
 
@@ -595,7 +601,7 @@ async function callVideoGenerationApi(data) {
 		PMGAY: PMGAY,
 		PMGAY_Amount: PMGAY_Amount,
 		PMGAY_Date: PMGAY_Date,
-		selectLanguage: selectLanguage		
+		selectLanguage: selectLanguage
 	}];
 
 	try {
@@ -644,16 +650,16 @@ function extractValuesFromTemplate(template, content) {
 	let lastIndex = 0;
 	let match;
 
-	while ((match = variableRegex.exec(template)) !== null) {	
+	while ((match = variableRegex.exec(template)) !== null) {
 		const fixedText = template.slice(lastIndex, match.index);
-		regexPattern += escapeRegExpFlexibleWhitespace(fixedText);		
+		regexPattern += escapeRegExpFlexibleWhitespace(fixedText);
 		regexPattern += '([\\s\\S]+?)';
 
 		lastIndex = match.index + match[0].length;
 	}
 
 	regexPattern += escapeRegExpFlexibleWhitespace(template.slice(lastIndex));
-	
+
 	const fullRegex = new RegExp('^' + regexPattern + '$');
 	const resultMatch = fullRegex.exec(content);
 	if (!resultMatch) {
@@ -665,28 +671,28 @@ function extractValuesFromTemplate(template, content) {
 
 function escapeRegExpFlexibleWhitespace(text) {
 	return text
-		.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')   
-		.replace(/\s+/g, '\\s+');     
+		.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+		.replace(/\s+/g, '\\s+');
 }
 
 async function ReadNamesJson(fullName) {
-    const methodname = 'ReadNamesJson';
-    try {
-        logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin`);
+	const methodname = 'ReadNamesJson';
+	try {
+		logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin`);
 
-        const data = await readFile(con.APP_ROOTDIR + "src/config/campaign_video_info.json", "utf8");
-        const jsonData = JSON.parse(data);
+		const data = await readFile(con.APP_ROOTDIR + "src/config/campaign_video_info.json", "utf8");
+		const jsonData = JSON.parse(data);
 
-        let result = jsonData.find(item => item.fullName === fullName);
-        // If no match found, use "default"
-        if (!result) {
-            logger.warn(`No match found for "${fullName}". Returning default entry.`);
-            result = jsonData.find(item => item.fullName === "Member");
-        }
+		let result = jsonData.find(item => item.fullName === fullName);
+		// If no match found, use "default"
+		if (!result) {
+			logger.warn(`No match found for "${fullName}". Returning default entry.`);
+			result = jsonData.find(item => item.fullName === "Member");
+		}
 
-        return result || null;
-    } catch (ex) {
-        logger.error(`Class :: ${classname} :: Method :: ${methodname} EXCEPTION :: ${ex}`);
-        throw ex;
-    }
+		return result || null;
+	} catch (ex) {
+		logger.error(`Class :: ${classname} :: Method :: ${methodname} EXCEPTION :: ${ex}`);
+		throw ex;
+	}
 }

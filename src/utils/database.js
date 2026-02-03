@@ -1,17 +1,17 @@
 require("dotenv").config();
 const con = require('../../config');
 const Sequelize = require('sequelize');
-const sequelize=new Sequelize(con.DB_NAME,con.DB_USER,con.DB_PWD,{
-    host:con.DB_HOST,
-    dialect:'postgres',
-    operatorsAliases:false,
-    pool:{
-        max:5,
-        min:0,
-        acquire:30000,
-        idle:10000
+const sequelize = new Sequelize(con.DB_NAME, con.DB_USER, con.DB_PWD, {
+    host: con.DB_HOST,
+    dialect: 'postgres',
+    operatorsAliases: false,
+    pool: {
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
     },
-	
+
 });
 const db = {};
 db.Sequelize = Sequelize;
@@ -32,7 +32,7 @@ db.idomos = require("../models/idomo.model")(sequelize, Sequelize);
 db.psvideo = require("../models/ps.video.model")(sequelize, Sequelize);
 db.campaignqueue = require("../models/campaignqueue.model")(sequelize, Sequelize);
 db.campaignuser = require("../models/campaignuser.model")(sequelize, Sequelize);
-db.uploadedfiledata = require("../models/uploadedFileData.model")(sequelize, Sequelize);
+db.uploadedfiledata = require("../models/uploadedfiledata.model")(sequelize, Sequelize);
 db.pdfmapping = require("../models/pdfmapping.model")(sequelize, Sequelize);
 
 
