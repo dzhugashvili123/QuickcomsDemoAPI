@@ -1,22 +1,24 @@
 const express = require("express");
-const { Client } = require('pg');
+//const { Client } = require('pg');
 const cors = require("cors");
 require("dotenv").config();
 const con = require('./config');
-const cron = require("node-cron");
+//const cron = require("node-cron");
 const bodyParser = require('body-parser');
-const jwt = require('jsonwebtoken');
+//const jwt = require('jsonwebtoken');
 const { ACCESS_DENIED_ERR, API_ENDPOINT_NOT_FOUND_ERR, SERVER_ERR } = require("./errors");
-const { createJwtToken, verifyJwtToken } = require("./src/utils/token.util");
+const { createJwtToken } = require("./src/utils/token.util");
 const authRoutes = require("./src/routes/auth.route");
 var logger = require('./src/utils/logtrace');
-var schedule = require("./src/controllers/scheduler.controller");
-var { ProcessCutomerFileData, DownloadJobs, SendMessages, UploadCustomerData, Upload_LGI_CustomerData } = require('./src/controllers/file.processor.controller');
-var { DownloadFilesExt } = require("./src/controllers/file.download.controller");
-var agent = require("./src/controllers/agent.file.controller");
-const sftpClient = require('ssh2-sftp-client');
+//var schedule = require("./src/controllers/scheduler.controller");
+//var { ProcessCutomerFileData, DownloadJobs, SendMessages, UploadCustomerData, Upload_LGI_CustomerData } = require('./src/controllers/file.processor.controller');
+//var { DownloadFilesExt } = require("./src/controllers/file.download.controller");
+//var agent = require("./src/controllers/agent.file.controller");
+//const sftpClient = require('ssh2-sftp-client');
 var mainwatcher = require('./src/watchers/mainloop')
 const cryptojs = require('crypto-js')
+const clientsService = require('./src/services/clients.service');
+const campaignsService = require('./src/services/campaigns.service');
 let password = "123";
 
 const config = {
@@ -193,11 +195,46 @@ async function main() {
 		// await client.connect().catch(ex => {
 		//   logger.error("database not connected. " + ex);
 		// });
+		
 		logger.info("Server started running on :" + con.PORT);
 		mainwatcher.setupMainLoop();
 		db.sequelize.sync()
-			.then(() => {
+			.then(async () => {
 				logger.info("Class :: index.js  :: sync Synced db ");
+				
+				// Sync clients from JSON to database on startup
+				try {
+					const fs = require('fs');
+					const clientsJsonPath = con.APP_ROOTDIR + 'src/config/clients.json';
+					
+					// Check if clients.json exists
+					if (fs.existsSync(clientsJsonPath)) {
+						logger.info("Class :: index.js :: Syncing clients from JSON to database");
+						await clientsService.syncClientsToDatabase();
+						logger.info("Class :: index.js :: Clients synced successfully");
+					} else {
+						logger.warn("Class :: index.js :: clients.json not found, skipping sync");
+					}
+				} catch (err) {
+					logger.error("Class :: index.js :: Error syncing clients: " + err.message);
+				}
+
+				// Sync campaigns from JSON to database on startup
+				try {
+					const fs = require('fs');
+					const campaignsJsonPath = con.APP_ROOTDIR + 'src/config/campaigns.json';
+					
+					// Check if campaigns.json exists
+					if (fs.existsSync(campaignsJsonPath)) {
+						logger.info("Class :: index.js :: Syncing campaigns from JSON to database");
+						await campaignsService.syncCampaignsToDatabase();
+						logger.info("Class :: index.js :: Campaigns synced successfully");
+					} else {
+						logger.warn("Class :: index.js :: campaigns.json not found, skipping sync");
+					}
+				} catch (err) {
+					logger.error("Class :: index.js :: Error syncing campaigns: " + err.message);
+				}
 			})
 			.catch((err) => {
 				logger.error("Error occured at db.sequelize.sync() " + err.message);
@@ -321,3 +358,4 @@ async function main() {
 //   const shortUrl = await shortenUrl(testUrl);
 //   console.log("Returned Short URL:", shortUrl);
 // })();
+

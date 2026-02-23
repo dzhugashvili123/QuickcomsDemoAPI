@@ -5,6 +5,7 @@ var whatsappService = require('../services/whatsapp.service');
 var emailService = require('../services/email.service');
 var smsService = require('../services/sms.service');
 var campaignService = require('../services/campaign.services');
+var campaignQueueService = require('../services/campaign_queue.service');
 var commomService = require('../services/common.service')
 const classname = 'scheduler.controller.js'
 const db = require("../utils/database");
@@ -220,7 +221,7 @@ exports.processCampaignMessages = async (req, res, next) => {
 	var methodname = 'processCampaignMessages'
 	try {
 		logger.info("Class :: " + classname + " :: Method :: " + methodname + " Begin");
-		await campaignService.processCampaignQueue(next);
+		await campaignQueueService.processCampaignQueue(next);
 		logger.info("Class :: " + classname + " :: Method :: " + methodname + " End");
 	} catch (error) {
 		logger.error("Class :: " + classname + " :: Method :: " + methodname + " Error :: " + error);

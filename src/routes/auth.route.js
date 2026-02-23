@@ -12,8 +12,17 @@ const { UploadCampaignData, GetCampaigns, GetCampaignReportByTrackingId } = requ
 const { generateQuickcomsToken, generateQuickcomsTokenByGroup } = require("../controllers/token.controller");
 const { generateIdomoVideo, generateIdomoToken } = require("../controllers/idomo.video.controller");
 const { generatepsVideo, getvideourl } = require("../controllers/ps.video.controller");
-const { UploadECCampaignData, ProcessCampgingCsv, GetCampaignsCampaignQueue, loginUser, handleSubmitSelectedRows, GetSelectCampaigns, generatePefOverview } = require("../controllers/campaignqueue.controller");
+const { UploadECCampaignData, ProcessCampgingCsv, GetCampaignsCampaignQueue, loginUser, handleSubmitSelectedRows, GetSelectCampaigns, GetCampaignQueueRecords, UpdateCampaignQueueRecord, generatePefOverview } = require("../controllers/campaignqueue.controller");
+const { DownloadCampaignSample } = require("../controllers/sample.download.controller");
 const { updateCampaignUser, getBjpCampaignUsers, getTdpCampaignUsers, updateBjpCampaignUser, updateTdpCampaignUser, getAdvCampaignUsers } = require("../controllers/campaignusers.controller");
+const clientsRoutes = require("./clients.route");
+const campaignsRoutes = require("./campaigns.route");
+
+// Client routes
+router.use(clientsRoutes);
+
+// Campaign routes
+router.use(campaignsRoutes);
 
 router.get("/run/messagequeue", processMessageQueue);
 router.get("/run/sms", scheduleSMS);
@@ -31,7 +40,10 @@ router.get("/get-campaigns", GetCampaignsCampaignQueue);
 router.post("/login", loginUser);
 router.post("/submit-selected-rows", handleSubmitSelectedRows);
 router.get("/get-select-campaigns", GetSelectCampaigns);
+router.get("/get-campaign-queue-records", GetCampaignQueueRecords);
+router.post("/update-campaign-queue-record", UpdateCampaignQueueRecord);
 router.get("/pdf/:shortId", generatePefOverview);
+router.get("/download-sample", DownloadCampaignSample);
 
 router.post("/msg", checkAuth, sendmessage);
 

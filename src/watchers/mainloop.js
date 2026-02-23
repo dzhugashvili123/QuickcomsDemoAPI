@@ -6,8 +6,9 @@ var psvideo = require("../controllers/ps.video.controller");
 
 const watchWhatsappQueueInterval = 30;// sec
 const watchAgentFileProcessInterval = 60;// sec
-const watchpsvideoProcessInterval =60;
+const watchpsvideoProcessInterval = 60;
 const watchCampaignQueueInterval = Number(process.env.WATCH_CAMPAIGN_QUEUE_INTERVAL) || 10; // 10 sec
+const watchCampaignQueueTime = process.env.WATCH_CAMPAIGN_QUEUE_TIME; // HH:mm format
 exports.setupMainLoop = async function setupMainLoop() {
     watchWhatsappQueue();
     watchSMSQueue();
@@ -17,14 +18,29 @@ exports.setupMainLoop = async function setupMainLoop() {
     watchUploadCustomerData_LGI();
     AgentDataFileProcess();
     SendAgentDataFileToQuickcoms();
-	campaignqueueProcess();
-	//personalizedVideoProcess();
+    campaignqueueProcess();
+    //personalizedVideoProcess();
 }
 
 async function waitFor(seconds) {
     return new Promise(resolve => {
         setTimeout(() => resolve(), seconds * 1000);
     });
+}
+
+function calculateDelayToNextTime(timeStr) {
+    if (!timeStr) return null;
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const now = new Date();
+    const target = new Date(now);
+    target.setHours(hours, minutes, 0, 0);
+
+    if (target <= now) {
+        target.setDate(target.getDate() + 1);
+    }
+
+    const delaySeconds = Math.floor((target.getTime() - now.getTime()) / 1000);
+    return delaySeconds;
 }
 
 async function watchUploadCustomerData(iteration = 1) {
@@ -155,14 +171,28 @@ async function personalizedVideoProcess(iteration = 1) {
 
 async function campaignqueueProcess(iteration = 1) {
     try {
-        logger.info(`**campaignqueueProcess [${iteration}] Running incoming watcher loop with ${watchCampaignQueueInterval}s delay **`);
+        if (watchCampaignQueueTime) {
+            const delay = calculateDelayToNextTime(watchCampaignQueueTime);
+            logger.info(`** campaignqueueProcess [${iteration}] Scheduled for next daily run at ${watchCampaignQueueTime} (in ${delay}s) **`);
+            await waitFor(delay);
+        } else {
+            logger.info(`** campaignqueueProcess [${iteration}] Running incoming watcher loop with ${watchCampaignQueueInterval}s delay **`);
+        }
 
-		await schedule.processCampaignMessages();
+        await schedule.processCampaignMessages();
 
-        await waitFor(watchCampaignQueueInterval);
-        campaignqueueProcess(iteration + 1);
+        if (watchCampaignQueueTime) {
+            // After running, wait a bit to avoid immediate re-trigger if delay was 0-1s due to clock skew
+            await waitFor(60);
+            campaignqueueProcess(iteration + 1);
+        } else {
+            await waitFor(watchCampaignQueueInterval);
+            campaignqueueProcess(iteration + 1);
+        }
     } catch (err) {
         logger.error(`Error watching campaignqueueProcess!`, err);
+        // On error, wait for a standard interval before retrying
+        await waitFor(watchCampaignQueueInterval);
         campaignqueueProcess();
     }
 }

@@ -1,5 +1,5 @@
-Dear <Variable1>,
+Dear {{firstName}},
 
-Please check our vision here: <Variable2>  Please download: <Variable3>
+Please check our vision here: {{url}}  Please download: {{pdfUrl}}
 
 Thank you for your TECRA.

@@ -3,3 +3,4 @@ Log/
 iisnode/
 .env
 .yarnlock
+src/config/*

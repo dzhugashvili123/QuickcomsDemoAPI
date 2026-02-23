@@ -1,1 +1,1 @@
-Dear <Variable1>, Thank you for joining us. Please check our vision here: <Variable2> Please download: <Variable3> Thank you TECRA
+Dear {{firstName}}, Thank you for joining us. Please check our vision here: {{url}} Please download: {{pdfUrl}} Thank you TECRA

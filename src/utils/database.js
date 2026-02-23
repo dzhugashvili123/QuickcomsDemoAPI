@@ -5,13 +5,13 @@ const sequelize = new Sequelize(con.DB_NAME, con.DB_USER, con.DB_PWD, {
     host: con.DB_HOST,
     dialect: 'postgres',
     operatorsAliases: false,
+    logging: false,
     pool: {
         max: 5,
         min: 0,
         acquire: 30000,
         idle: 10000
     },
-
 });
 const db = {};
 db.Sequelize = Sequelize;
@@ -34,6 +34,9 @@ db.campaignqueue = require("../models/campaignqueue.model")(sequelize, Sequelize
 db.campaignuser = require("../models/campaignuser.model")(sequelize, Sequelize);
 db.uploadedfiledata = require("../models/uploadedfiledata.model")(sequelize, Sequelize);
 db.pdfmapping = require("../models/pdfmapping.model")(sequelize, Sequelize);
+db.clients = require("../models/clients.model")(sequelize, Sequelize);
+db.campaigns = require("../models/campaigns.model")(sequelize, Sequelize);
+db.campaign_queue = require("../models/campaign_queue.model")(sequelize, Sequelize);
 
 
 module.exports = db;

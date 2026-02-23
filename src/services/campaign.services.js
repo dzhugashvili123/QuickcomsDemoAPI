@@ -11,22 +11,24 @@ var util = require('util');
 const shortid = require('shortid');
 var readFile = util.promisify(fs.readFile);
 const { messagequeueStatusEnum } = require('../models/whatsapp.message.status');
+const campQueueLimit = process.env.CAMPAIGN_QUEUE_LIMIT || 100;
+const commonService = require('../services/common.service');
 
 exports.processCampaignQueue = async (next) => {
 	const methodname = 'processCampaignQueue';
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin`);
 	try {
-		var condition = { where: { status: `${messagequeueStatusEnum.received}` } };
+		var condition = { where: { status: `${messagequeueStatusEnum.received}` }, limit: campQueueLimit };
+
 		const records = await db.campaignqueue.findAll(condition);
 		logger.info(`Class :: ${classname} :: Method :: ${methodname} Fetched Records Count :: ${records.length}`);
-
+		const data = await readFile(con.APP_ROOTDIR + "src/config/campaignqueue.json", "utf8");
+		const json = JSON.parse(data);
+		let campaignsArray = [];
+		if (Array.isArray(json.campaigns)) {
+			campaignsArray = json.campaigns;
+		}
 		for (const record of records) {
-			const data = await readFile(con.APP_ROOTDIR + "src/config/campaignqueue.json", "utf8");
-			const json = JSON.parse(data);
-			let campaignsArray = [];
-			if (Array.isArray(json.campaigns)) {
-				campaignsArray = json.campaigns;
-			}
 			const campaign = campaignsArray.find(
 				(c) => c.campaignname.trim() === record.campaignname.trim()
 			);
@@ -57,6 +59,11 @@ async function sendSMS(Id, phone, msgContent, customer, templateId, generateVide
 	const methodname = "sendSMS";
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} begin`);
 	let template = "";
+	const clientsData = await commonService.GetClients();
+	const client = clientsData.find(c => c.name.toLowerCase() === customer.PartyName.toLowerCase());
+	if (!client) {
+		logger.error(`Class :: ${classname} :: Method :: ${methodname} Client not found for partyName: ${customer.PartyName}`);
+	}
 	try {
 		template = fs.readFileSync(`${con.APP_ROOTDIR}Templates/${templateId}.txt`, { encoding: "utf8", flag: "r" });
 	} catch (err) {
@@ -68,12 +75,12 @@ async function sendSMS(Id, phone, msgContent, customer, templateId, generateVide
 	let videoResUrl = "";
 	if (generateVideo === true) {
 		try {
-			videoResUrl = await callVideoGenerationApi(customer);
+			videoResUrl = await (customer, client.clientMeta?.videoUrl);
 		} catch (err) {
 			logger.error(`Video generation failed: ${err}`);
 		}
 	}
-	const pdfUrl = con.PDF_ADV_ENGLISH || "";
+	const pdfUrl = client.clientMeta.pdfEnglish || "";
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} videoResUrl:: ${videoResUrl}`);
 
 	const finalMessage = template.replace("<Variable1>", msgContent)
@@ -81,11 +88,12 @@ async function sendSMS(Id, phone, msgContent, customer, templateId, generateVide
 		.replace("<Variable3>", pdfUrl);
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} finalMessage:: ${finalMessage}`);
 
+	const smsProvider = client.smsConfig?.providerSettings;
 	const payload = {
-		username: con.EQC_SMS_USERID,
-		password: con.EQC_SMS_PWD,
+		username: smsProvider.userId || con.EQC_SMS_USERID,
+		password: smsProvider.password || con.EQC_SMS_PWD,
 		to: phone,
-		from: "TECRAS",
+		from: smsProvider.from || "TECRAS",
 		tmplId: templateId,
 		text: finalMessage,
 		makeShort: "1",
@@ -127,6 +135,11 @@ async function sendwhatsappMessageWithoutAttachment(customer, campaign, generate
 	logger.info('sendwhatsappMessageWithoutAttachment=============== ');
 	const methodname = "sendwhatsappMessageWithoutAttachment";
 	const templateId = campaign.whatsapp.templateId;
+	const clientsData = await commonService.GetClients();
+	const client = clientsData.find(c => c.name.toLowerCase() === customer.PartyName.toLowerCase());
+	if (!client) {
+		logger.error(`Class :: ${classname} :: Method :: ${methodname} Client not found for partyName: ${customer.PartyName}`);
+	}
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin`);
 	let template = "";
 	try {
@@ -140,7 +153,7 @@ async function sendwhatsappMessageWithoutAttachment(customer, campaign, generate
 	let videoResUrl = "";
 	if (generateVideo && generateVideo === true) {
 		try {
-			videoResUrl = await callVideoGenerationApi(customer);
+			videoResUrl = await callVideoGenerationApi(customer, client.videoUrl);
 		} catch (err) {
 			logger.error(`Class :: ${classname} :: Method :: ${methodname} Video generation failed: ${err}`);
 		}
@@ -160,19 +173,16 @@ async function sendwhatsappMessageWithoutAttachment(customer, campaign, generate
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} videoResUrl:: ${videoResUrl}`);
 	//logger.info(`Class :: ${classname} :: Method :: ${methodname} pdffileUrl ****:: ${pdffileUrl}`);
 	let pdffile = "";
-	if (customer.selectLanguage === "H" && customer.PartyName.trim().toLowerCase() === 'bjp') {
-		pdffile = con.PDF_BJP_HINDI || "";
-	} else if (customer.selectLanguage === "E" && customer.PartyName.trim().toLowerCase() === 'bjp') {
-		pdffile = con.PDF_BJP_ENGLISH || "";
+	if (customer.selectLanguage === "H") {
+		pdffile = client.clientMeta?.pdfHindi || "";
+	} else if (customer.selectLanguage === "E") {
+		pdffile = client.clientMeta?.pdfEnglish || ""; ``
 	}
-	else if (customer.PartyName.trim().toLowerCase() === 'tdp') {
-		pdffile = con.PDF_TDP || "";
+	else if (customer.selectLanguage === "T") {
+		pdffile = client.clientMeta?.pdfTelugu || "";
 	}
-	else if (customer.selectLanguage === "E" && customer.PartyName.trim().toLowerCase() === 'adv') {
-		pdffile = con.PDF_ADV_ENGLISH || "";
-	}
-	else if (customer.selectLanguage === "T" && customer.PartyName.trim().toLowerCase() === 'adv') {
-		pdffile = con.PDF_ADV_TELUGU || "";
+	else {
+		pdffile = client.clientMeta?.pdfEnglish || "";
 	}
 	const finalMessage = template
 		.replace("<Variable1>", customer.firstName)
@@ -181,8 +191,10 @@ async function sendwhatsappMessageWithoutAttachment(customer, campaign, generate
 
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} finalMessage:: ${finalMessage}`);
 
-	const userid = con.EQC_WHATSAPP_USERID;
-	const password = con.EQC_WHATSAPP_PWD;
+	const whatsAppProvider = client.whatsAppConfig?.providerSettings;
+
+	const userid = whatsAppProvider ? whatsAppProvider.userId : con.EQC_WHATSAPP_USERID;
+	const password = whatsAppProvider ? whatsAppProvider.password : con.EQC_WHATSAPP_PWD;
 	const url = "https://channels.equence.in/unifiedservice?";
 
 	const payload = {
@@ -190,7 +202,7 @@ async function sendwhatsappMessageWithoutAttachment(customer, campaign, generate
 		password: password,
 		channelId: "WAP",
 		whatsAppEntity: {
-			whatsAppSourceAddress: con.EQC_WHATSAPP_SOURCE_ADDRESS,
+			whatsAppSourceAddress: whatsAppProvider ? whatsAppProvider.senderId : con.EQC_WHATSAPP_SOURCE_ADDRESS,
 			whatsAppDestinationAddress: customer.MobileNo,
 			templateId: templateId,
 			variables: [
@@ -240,7 +252,7 @@ async function sendwhatsappMessageWithoutAttachment(customer, campaign, generate
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} End`);
 }
 
-async function callVideoGenerationApi(data) {
+async function callVideoGenerationApi(data, videoUrl) {
 	let methodname = 'callVideoGenerationApi';
 	logger.info("Class :: " + classname + " :: Method :: " + methodname + " Begin");
 	//var text1link = data.text1link;
@@ -293,7 +305,7 @@ async function callVideoGenerationApi(data) {
 
 	var policyRecords = [{
 		fullName: fullName,
-		RNPOLNUM: data.MobileNo,
+		Policy_No: data.MobileNo,
 		PartyName: partyName,
 		//profileLink: text1link,
 		// PartyName: PartyName,
@@ -319,13 +331,7 @@ async function callVideoGenerationApi(data) {
 	}];
 
 	try {
-		const bjp_url = con.VIDEO_BJP_URL;
-		const tdp_url = con.VIDEO_TDP_URL;
-		const adv_url = con.VIDEO_ADV_URL;
-
-		const url = partyName.trim().toLowerCase() === 'bjp' ? bjp_url : (partyName.trim().toLowerCase() === 'tdp' ? tdp_url : adv_url);
-
-		const response = await axios.post(url, policyRecords, {
+		const response = await axios.post(videoUrl, policyRecords, {
 			headers: {
 				"Content-Type": "application/json",
 			},
