@@ -518,10 +518,13 @@ exports.GetCampaignQueueRecords = async (req, res) => {
 
 		// 2. Fetch records from campaign_queue
 		const query = `
-			SELECT 
-				id, campaignid, clientid, mobile, email, language, status, dynamicdata, "createdAt", "updatedAt"
-			FROM public.campaign_queues
-			WHERE campaignid = :campaignId AND clientid = :clientId
+			SELECT * FROM (
+				SELECT DISTINCT ON (mobile)
+					id, campaignid, clientid, mobile, email, language, status, dynamicdata, "createdAt", "updatedAt"
+				FROM public.campaign_queues
+				WHERE campaignid = :campaignId AND clientid = :clientId
+				ORDER BY mobile, id DESC
+			) AS sub
 			ORDER BY id DESC
 			LIMIT 100
 		`;
