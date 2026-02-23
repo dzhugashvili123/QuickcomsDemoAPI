@@ -141,7 +141,7 @@ async function sendSMS(record, campaign, client) {
         let videoResUrl = "";
         if (generateVideo) {
             try {
-                videoResUrl = await callVideoGenerationApi(client.name, record, client.clientMeta?.videoUrl);
+                videoResUrl = await callVideoGenerationApi(client.name, record, client.clientMeta?.videoTemplateId);
             } catch (err) {
                 logger.error(`Class :: ${classname} :: Method :: ${methodname} Video generation failed: ${err}`);
             }
@@ -205,7 +205,7 @@ async function sendwhatsappMessage(record, campaign, client) {
         let videoResUrl = "";
         if (generateVideo) {
             try {
-                videoResUrl = await callVideoGenerationApi(client.name, record, client.clientMeta?.videoUrl);
+                videoResUrl = await callVideoGenerationApi(client.name, record, client.clientMeta?.videoTemplateId);
             } catch (err) {
                 logger.error(`Class :: ${classname} :: Method :: ${methodname} Video generation failed: ${err}`);
             }
@@ -270,14 +270,17 @@ async function sendwhatsappMessage(record, campaign, client) {
     }
 }
 
-async function callVideoGenerationApi(clientName, record, videoUrl) {
+async function callVideoGenerationApi(clientName, record, videoTemplateId) {
     const methodname = 'callVideoGenerationApi';
     logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin`);
 
-    if (!videoUrl) {
-        logger.warn(`Class :: ${classname} :: Method :: ${methodname} No videoUrl provided`);
+    if (!videoTemplateId) {
+        logger.warn(`Class :: ${classname} :: Method :: ${methodname} No videoTemplateId provided`);
         return null;
     }
+
+    const videoBaseUrl = process.env.VIDEO_BASE_URL || 'https://videos.laadshyd.com/vf/vapi/uploadGripCampaignData/';
+    const videoUrl = videoBaseUrl + videoTemplateId;
 
     const firstName = record.dynamicdata?.firstName || "";
     const language = record.language || "E";

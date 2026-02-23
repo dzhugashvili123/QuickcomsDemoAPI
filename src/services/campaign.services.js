@@ -75,7 +75,7 @@ async function sendSMS(Id, phone, msgContent, customer, templateId, generateVide
 	let videoResUrl = "";
 	if (generateVideo === true) {
 		try {
-			videoResUrl = await (customer, client.clientMeta?.videoUrl);
+			videoResUrl = await callVideoGenerationApi(customer, client.clientMeta?.videoTemplateId);
 		} catch (err) {
 			logger.error(`Video generation failed: ${err}`);
 		}
@@ -153,7 +153,7 @@ async function sendwhatsappMessageWithoutAttachment(customer, campaign, generate
 	let videoResUrl = "";
 	if (generateVideo && generateVideo === true) {
 		try {
-			videoResUrl = await callVideoGenerationApi(customer, client.videoUrl);
+			videoResUrl = await callVideoGenerationApi(customer, client.clientMeta?.videoTemplateId);
 		} catch (err) {
 			logger.error(`Class :: ${classname} :: Method :: ${methodname} Video generation failed: ${err}`);
 		}
@@ -252,9 +252,17 @@ async function sendwhatsappMessageWithoutAttachment(customer, campaign, generate
 	logger.info(`Class :: ${classname} :: Method :: ${methodname} End`);
 }
 
-async function callVideoGenerationApi(data, videoUrl) {
+async function callVideoGenerationApi(data, videoTemplateId) {
 	let methodname = 'callVideoGenerationApi';
 	logger.info("Class :: " + classname + " :: Method :: " + methodname + " Begin");
+
+	if (!videoTemplateId) {
+		logger.warn(`Class :: ${classname} :: Method :: ${methodname} No videoTemplateId provided`);
+		return null;
+	}
+
+	const videoBaseUrl = process.env.VIDEO_BASE_URL || 'https://videos.laadshyd.com/vf/vapi/uploadGripCampaignData/';
+	const videoUrl = videoBaseUrl + videoTemplateId;
 	//var text1link = data.text1link;
 	//var PartyName = data.PartyName || 'BJP';
 	var fullName = data.firstName; //+ " " + data.lastName;
