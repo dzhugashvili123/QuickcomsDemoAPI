@@ -37,6 +37,10 @@ module.exports = (sequelize, Sequelize) => {
 			type: Sequelize.JSONB,
 			allowNull: true,
 			defaultValue: {}
+		},
+		schedule_time: {
+			type: Sequelize.DATE,
+			allowNull: true
 		}
 	});
 

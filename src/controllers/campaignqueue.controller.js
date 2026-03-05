@@ -145,7 +145,7 @@ exports.ProcessCampgingCsv = async (req, res) => {
 	try {
 		logger.info(`Class :: ${classname} :: Method :: ProcessCampaigningCsv Begin`);
 
-		const { fileName, campaignName, clientId } = req.body;
+		const { fileName, campaignName, clientId, scheduleTime } = req.body;
 		if (!fileName) return res.status(400).json({ error: 'File name is required' });
 		if (!campaignName) return res.status(400).json({ error: 'Campaign name is required' });
 
@@ -197,6 +197,7 @@ exports.ProcessCampgingCsv = async (req, res) => {
 									email: email,
 									language: row.selectLanguage || row.language || 'E',
 									dynamicdata: dynamicData,
+									schedule_time: scheduleTime || null,
 									status: messagequeueStatusEnum.received,
 									timestamp: new Date().toISOString()
 								});
@@ -230,6 +231,7 @@ exports.ProcessCampgingCsv = async (req, res) => {
 									email: email,
 									language: row.selectLanguage || row.language || 'E',
 									dynamicdata: dynamicData,
+									schedule_time: scheduleTime || null,
 									status: messagequeueStatusEnum.received,
 									timestamp: new Date().toISOString()
 								});
@@ -412,7 +414,7 @@ exports.handleSubmitSelectedRows = async (req, res) => {
 			`Class :: ${classname} :: Method :: ${methodname} Request Body = ${JSON.stringify(req.body, null, 2)}`
 		);
 
-		const { selectedRows, selectedCampaign, clientId } = req.body;
+		const { selectedRows, selectedCampaign, clientId, scheduleTime } = req.body;
 
 		if (!selectedRows || !Array.isArray(selectedRows) || selectedRows.length === 0) {
 			return res.status(400).json({
@@ -452,6 +454,7 @@ exports.handleSubmitSelectedRows = async (req, res) => {
 				email: row.email || '',
 				language: row.language || row.selectLanguage || 'E',
 				dynamicdata: dynamic,
+				schedule_time: scheduleTime || null,
 				status: '1', // received
 				timestamp: new Date().toISOString()
 			};

@@ -17,7 +17,13 @@ exports.processCampaignQueue = async (next) => {
     logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin`);
     try {
         const condition = {
-            where: { status: `${messagequeueStatusEnum.received}` },
+            where: {
+                status: `${messagequeueStatusEnum.received}`,
+                [db.Sequelize.Op.or]: [
+                    { schedule_time: null },
+                    { schedule_time: { [db.Sequelize.Op.lte]: new Date() } }
+                ]
+            },
             limit: campQueueLimit,
             order: [['id', 'ASC']]
         };
