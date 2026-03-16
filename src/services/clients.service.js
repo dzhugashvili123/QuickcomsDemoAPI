@@ -72,7 +72,9 @@ exports.getAllClients = async () => {
     const methodname = 'getAllClients';
     logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin`);
     try {
-        const clients = await db.clients.findAll();
+        const clients = await db.clients.findAll({
+            attributes: { exclude: ['whatsAppConfig', 'smsConfig', 'emailConfig'] }
+        });
         logger.info(`Class :: ${classname} :: Method :: ${methodname} Found ${clients.length} clients`);
         return clients;
     } catch (error) {
@@ -88,7 +90,10 @@ exports.getClientById = async (id) => {
     const methodname = 'getClientById';
     logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin - ID: ${id}`);
     try {
-        const client = await db.clients.findOne({ where: { id } });
+        const client = await db.clients.findOne({
+            where: { id },
+            attributes: { exclude: ['whatsAppConfig', 'smsConfig', 'emailConfig'] }
+        });
         if (client) {
             logger.info(`Class :: ${classname} :: Method :: ${methodname} Found client: ${client.name}`);
         } else {
@@ -108,7 +113,10 @@ exports.getClientByName = async (name) => {
     const methodname = 'getClientByName';
     logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin - Name: ${name}`);
     try {
-        const client = await db.clients.findOne({ where: { name } });
+        const client = await db.clients.findOne({
+            where: { name },
+            attributes: { exclude: ['whatsAppConfig', 'smsConfig', 'emailConfig'] }
+        });
         if (client) {
             logger.info(`Class :: ${classname} :: Method :: ${methodname} Found client: ${client.name}`);
         } else {
@@ -128,7 +136,10 @@ exports.getClientsByStatus = async (status) => {
     const methodname = 'getClientsByStatus';
     logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin - Status: ${status}`);
     try {
-        const clients = await db.clients.findAll({ where: { status } });
+        const clients = await db.clients.findAll({
+            where: { status },
+            attributes: { exclude: ['whatsAppConfig', 'smsConfig', 'emailConfig'] }
+        });
         logger.info(`Class :: ${classname} :: Method :: ${methodname} Found ${clients.length} clients with status: ${status}`);
         return clients;
     } catch (error) {
@@ -144,7 +155,10 @@ exports.getActiveClients = async () => {
     const methodname = 'getActiveClients';
     logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin`);
     try {
-        const clients = await db.clients.findAll({ where: { status: 'active' } });
+        const clients = await db.clients.findAll({
+            where: { status: 'active' },
+            attributes: { exclude: ['whatsAppConfig', 'smsConfig', 'emailConfig'] }
+        });
         logger.info(`Class :: ${classname} :: Method :: ${methodname} Found ${clients.length} active clients`);
         return clients;
     } catch (error) {
@@ -253,7 +267,8 @@ exports.getClientCampaigns = async (clientId) => {
         const campaigns = await db.campaigns.findAll({
             where: {
                 id: campaignIds
-            }
+            },
+            attributes: { exclude: ['emailConfig', 'whatsappConfig', 'smsConfig'] }
         });
 
         logger.info(`Class :: ${classname} :: Method :: ${methodname} Found ${campaigns.length} campaigns for client: ${clientId}`);

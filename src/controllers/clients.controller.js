@@ -159,9 +159,16 @@ exports.createClient = async (req, res) => {
 
         const client = await clientsService.createClient(clientData);
         logger.info(`Class :: ${classname} :: Method :: ${methodname} Created client: ${client.name} (ID: ${client.id})`);
+
+        // Remove sensitive fields from response
+        const clientResponse = client.toJSON ? client.toJSON() : { ...client };
+        delete clientResponse.whatsAppConfig;
+        delete clientResponse.smsConfig;
+        delete clientResponse.emailConfig;
+
         return res.status(201).json({
             success: true,
-            data: client
+            data: clientResponse
         });
     } catch (error) {
         logger.error(`Class :: ${classname} :: Method :: ${methodname} ERROR :: ${error}`);
@@ -202,9 +209,16 @@ exports.updateClient = async (req, res) => {
         }
 
         logger.info(`Class :: ${classname} :: Method :: ${methodname} Updated client: ${updatedClient.name}`);
+
+        // Remove sensitive fields from response
+        const clientResponse = updatedClient.toJSON ? updatedClient.toJSON() : { ...updatedClient };
+        delete clientResponse.whatsAppConfig;
+        delete clientResponse.smsConfig;
+        delete clientResponse.emailConfig;
+
         return res.status(200).json({
             success: true,
-            data: updatedClient
+            data: clientResponse
         });
     } catch (error) {
         logger.error(`Class :: ${classname} :: Method :: ${methodname} ERROR :: ${error}`);

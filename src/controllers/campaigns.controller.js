@@ -159,9 +159,16 @@ exports.createCampaign = async (req, res) => {
 
         const campaign = await campaignsService.createCampaign(campaignData);
         logger.info(`Class :: ${classname} :: Method :: ${methodname} Created campaign: ${campaign.campaignname} (ID: ${campaign.id})`);
+
+        // Remove sensitive fields from response
+        const campaignResponse = campaign.toJSON ? campaign.toJSON() : { ...campaign };
+        delete campaignResponse.emailConfig;
+        delete campaignResponse.whatsappConfig;
+        delete campaignResponse.smsConfig;
+
         return res.status(201).json({
             success: true,
-            data: campaign
+            data: campaignResponse
         });
     } catch (error) {
         logger.error(`Class :: ${classname} :: Method :: ${methodname} ERROR :: ${error}`);
@@ -202,9 +209,16 @@ exports.updateCampaign = async (req, res) => {
         }
 
         logger.info(`Class :: ${classname} :: Method :: ${methodname} Updated campaign: ${updatedCampaign.campaignname}`);
+
+        // Remove sensitive fields from response
+        const campaignResponse = updatedCampaign.toJSON ? updatedCampaign.toJSON() : { ...updatedCampaign };
+        delete campaignResponse.emailConfig;
+        delete campaignResponse.whatsappConfig;
+        delete campaignResponse.smsConfig;
+
         return res.status(200).json({
             success: true,
-            data: updatedCampaign
+            data: campaignResponse
         });
     } catch (error) {
         logger.error(`Class :: ${classname} :: Method :: ${methodname} ERROR :: ${error}`);

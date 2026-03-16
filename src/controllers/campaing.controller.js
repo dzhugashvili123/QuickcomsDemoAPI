@@ -28,7 +28,7 @@ exports.GetCampaigns = async (req, res) => {
     const methodname = 'GetCampaigns';
     logger.info("Class :: " + classname + " :: Method :: " + methodname + " Begin");
     try {
-        let selectQury="SELECT * FROM campaigns ORDER BY id desc LIMIT 5";
+        let selectQury="SELECT id, campaignname, status, fields, \"candidateName\", \"messageTemplate\", overlays FROM campaigns ORDER BY id desc LIMIT 5";
         db.sequelize.query(selectQury).then(async (data) => {
             res.send(data[0]);
         });
@@ -291,7 +291,7 @@ exports.UploadCampaignData = async (req, res) => {
                                 // db.campaign.findAll().then(async (data) => {
                                 //     res.send(data);
                                 // });
-                                let selectQury="SELECT * FROM campaigns ORDER BY id desc LIMIT 5";
+                                let selectQury="SELECT id, campaignname, status, fields, \"candidateName\", \"messageTemplate\", overlays FROM campaigns ORDER BY id desc LIMIT 5";
                                 db.sequelize.query(selectQury).then(async (data) => {
                                     res.send(data[0]);
                                 });

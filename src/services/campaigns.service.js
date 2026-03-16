@@ -74,7 +74,9 @@ exports.getAllCampaigns = async () => {
     const methodname = 'getAllCampaigns';
     logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin`);
     try {
-        const campaigns = await db.campaigns.findAll();
+        const campaigns = await db.campaigns.findAll({
+            attributes: { exclude: ['emailConfig', 'whatsappConfig', 'smsConfig'] }
+        });
         logger.info(`Class :: ${classname} :: Method :: ${methodname} Found ${campaigns.length} campaigns`);
         return campaigns;
     } catch (error) {
@@ -90,7 +92,10 @@ exports.getCampaignById = async (id) => {
     const methodname = 'getCampaignById';
     logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin - ID: ${id}`);
     try {
-        const campaign = await db.campaigns.findOne({ where: { id } });
+        const campaign = await db.campaigns.findOne({
+            where: { id },
+            attributes: { exclude: ['emailConfig', 'whatsappConfig', 'smsConfig'] }
+        });
         if (campaign) {
             logger.info(`Class :: ${classname} :: Method :: ${methodname} Found campaign: ${campaign.campaignname}`);
         } else {
@@ -110,7 +115,10 @@ exports.getCampaignByName = async (name) => {
     const methodname = 'getCampaignByName';
     logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin - Name: ${name}`);
     try {
-        const campaign = await db.campaigns.findOne({ where: { campaignname: name } });
+        const campaign = await db.campaigns.findOne({
+            where: { campaignname: name },
+            attributes: { exclude: ['emailConfig', 'whatsappConfig', 'smsConfig'] }
+        });
         if (campaign) {
             logger.info(`Class :: ${classname} :: Method :: ${methodname} Found campaign: ${campaign.campaignname}`);
         } else {
@@ -130,7 +138,10 @@ exports.getCampaignsByStatus = async (status) => {
     const methodname = 'getCampaignsByStatus';
     logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin - Status: ${status}`);
     try {
-        const campaigns = await db.campaigns.findAll({ where: { status } });
+        const campaigns = await db.campaigns.findAll({
+            where: { status },
+            attributes: { exclude: ['emailConfig', 'whatsappConfig', 'smsConfig'] }
+        });
         logger.info(`Class :: ${classname} :: Method :: ${methodname} Found ${campaigns.length} campaigns with status: ${status}`);
         return campaigns;
     } catch (error) {
@@ -146,7 +157,10 @@ exports.getActiveCampaigns = async () => {
     const methodname = 'getActiveCampaigns';
     logger.info(`Class :: ${classname} :: Method :: ${methodname} Begin`);
     try {
-        const campaigns = await db.campaigns.findAll({ where: { status: 'active' } });
+        const campaigns = await db.campaigns.findAll({
+            where: { status: 'active' },
+            attributes: { exclude: ['emailConfig', 'whatsappConfig', 'smsConfig'] }
+        });
         logger.info(`Class :: ${classname} :: Method :: ${methodname} Found ${campaigns.length} active campaigns`);
         return campaigns;
     } catch (error) {

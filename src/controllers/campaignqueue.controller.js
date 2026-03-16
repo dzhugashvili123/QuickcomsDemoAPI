@@ -344,9 +344,18 @@ exports.GetCampaignsCampaignQueue = (_req, res) => {
 
 		logger.info(`Campaigns retrieved successfully: ${json.campaigns.length} campaigns found`);
 
+		// Filter sensitive fields
+		const filteredCampaigns = (json.campaigns || []).map(campaign => {
+			const filtered = { ...campaign };
+			delete filtered.email;
+			delete filtered.whatsapp;
+			delete filtered.sms;
+			return filtered;
+		});
+
 		return res.json({
 			success: true,
-			campaigns: json.campaigns || []
+			campaigns: filteredCampaigns
 		});
 	} catch (err) {
 		logger.error('GetCampaigns error:', err);
